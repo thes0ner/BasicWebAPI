@@ -3,7 +3,7 @@ using WebAPI.Entities.Concrete;
 
 namespace WebAPI.DataAccess.Concrete.context
 {
-    public class WebApiDbContext :DbContext
+    public class WebApiDbContext : DbContext
     {
         public WebApiDbContext(DbContextOptions options) : base(options)
         {
@@ -11,6 +11,10 @@ namespace WebAPI.DataAccess.Concrete.context
 
         public WebApiDbContext()
         {
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(Configuration.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,6 +36,8 @@ namespace WebAPI.DataAccess.Concrete.context
                 .HasForeignKey(c => c.CountryId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
+
+
 
 
 
