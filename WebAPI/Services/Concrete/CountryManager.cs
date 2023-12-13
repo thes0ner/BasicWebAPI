@@ -31,18 +31,9 @@ namespace WebAPI.Services.Concrete
 
         public Country Update(Country country)
         {
-            var checkExistingId = _countryDal.Get(c => c.CountryId == country.CountryId);
 
-            if (checkExistingId == null)
-            {
-                return country;
-            }
-            else
-            {
-                var updatedEntity = _countryDal.Update(country);
-                return updatedEntity;
-
-            }
+            var updatedEntity = _countryDal.Update(country);
+            return updatedEntity;
 
         }
 

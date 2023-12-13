@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return BadRequest("Contact creation failed.");
+                    return BadRequest("Country creation failed.");
                 }
             }
             catch (Exception ex)
@@ -123,10 +123,10 @@ namespace WebAPI.Controllers
             try
             {
                 if (country == null)
-                    return NotFound("Contact not found.");
-                else if (country.CountryId == country.CountryId)
+                    return NotFound("Country not found.");
+                else if (!(country.CountryId == country.CountryId) || country.CountryId <= 0)
                 {
-                    return NotFound("Contact Id not found.");
+                    return NotFound("Country Id not found.");
                 }
                 else if (country != null)
                 {
