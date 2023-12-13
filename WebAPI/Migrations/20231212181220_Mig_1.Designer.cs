@@ -11,7 +11,7 @@ using WebAPI.DataAccess.Concrete.context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(WebApiDbContext))]
-    [Migration("20231211225855_Mig_1")]
+    [Migration("20231212181220_Mig_1")]
     partial class Mig_1
     {
         /// <inheritdoc />

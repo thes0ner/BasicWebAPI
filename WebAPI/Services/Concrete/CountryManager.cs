@@ -14,50 +14,47 @@ namespace WebAPI.Services.Concrete
             _countryDal = countryDal;
         }
 
-        public async Task<Country> CreateAsync(Country country)
+        public int Create(Country country)
         {
-            await _countryDal.CreateAsync(country);
-            await _countryDal.SaveAsync();
-            return country;
+            _countryDal.Create(country);
+            return country.CountryId;
         }
 
-        public async Task DeleteAsync(int id)
+        public void Delete(int id)
         {
-            var result = _countryDal.GetByIdAsync(id);
-
-            try
+            var result = _countryDal.Get(c => c.CountryId == id);
+            if (result != null)
             {
-                if (result != null)
-                {
-                    await _countryDal.DeleteAsync(id);
-                    await _countryDal.SaveAsync();
-                }
-            }
-            catch
-            {
-                await Console.Out.WriteLineAsync($"Entered Id {id} not found in the list.");
+                _countryDal.Delete(id);
             }
         }
 
-        public async Task<IEnumerable<Country>> GetAllAsync()
+        public Country Update(Country country)
         {
-            return await _countryDal.GetAllAsync();
+            var checkExistingId = _countryDal.Get(c => c.CountryId == country.CountryId);
+
+            if (checkExistingId == null)
+            {
+                return country;
+            }
+            else
+            {
+                var updatedEntity = _countryDal.Update(country);
+                return updatedEntity;
+
+            }
+
         }
 
-        public async Task<Country> GetByIdAsync(int id)
+        public IEnumerable<Country> GetAll()
         {
-            return await _countryDal.GetByIdAsync(id);
+            return _countryDal.GetAll();
         }
 
-        public async Task UpdateAsync(Country country)
+        public Country GetById(int id)
         {
-            await _countryDal.UpdateAsync(country);
-            await _countryDal.SaveAsync();
+            return _countryDal.Get(c => c.CountryId == id);
         }
 
-        public async Task SaveAsync()
-        {
-            await _countryDal.SaveAsync();
-        }
     }
 }

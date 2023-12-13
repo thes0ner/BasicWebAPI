@@ -14,50 +14,39 @@ namespace WebAPI.Services.Concrete
             _companyDal = companyDal;
         }
 
-        public async Task<Company> CreateAsync(Company company)
+        public int Create(Company company)
         {
-            _companyDal.CreateAsync(company);
-            await _companyDal.SaveAsync();
-            return company;
+            _companyDal.Create(company);
+            return company.CompanyId;
         }
 
-        public async Task DeleteAsync(int id)
+        public void Delete(int id)
         {
-            var result = _companyDal.GetByIdAsync(id);
-
-            try
+            var result = _companyDal.Get(c => c.CompanyId == id);
+            if (result != null)
             {
-                if (result != null)
-                {
-                    _companyDal.DeleteAsync(result.Id);
-                    await _companyDal.SaveAsync();
-                }
-            }
-            catch
-            {
-                await Console.Out.WriteLineAsync($"Entered Id {id} not found in the list.");
+                _companyDal.Delete(id);
             }
         }
 
-        public async Task<IEnumerable<Company>> GetAllAsync()
+        public Company Update(Company company)
         {
-            return await _companyDal.GetAllAsync();
+
+            var updatedEntity = _companyDal.Update(company);
+            return updatedEntity;
+
         }
 
-        public async Task<Company> GetByIdAsync(int id)
+        public IEnumerable<Company> GetAll()
         {
-            return await _companyDal.GetByIdAsync(id);
+            return _companyDal.GetAll();
         }
 
-        public async Task<Company> UpdateAsync(Company company)
+        public Company GetById(int id)
         {
-            await _companyDal.UpdateAsync(company);
-            await _companyDal.SaveAsync();
-            return company;
+            return _companyDal.Get(c => c.CompanyId == id);
         }
-        public async Task SaveAsync()
-        {
-            await _companyDal.SaveAsync();
-        }
+
+
     }
 }

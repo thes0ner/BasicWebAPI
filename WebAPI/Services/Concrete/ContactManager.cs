@@ -14,52 +14,36 @@ namespace WebAPI.Services.Concrete
             _contactDal = contactDal;
         }
 
-        public async Task<Contact> CreateAsync(Contact contact)
+        public int Create(Contact contact)
         {
-            await _contactDal.CreateAsync(contact);
-            await _contactDal.SaveAsync();
-            return contact;
+            _contactDal.Create(contact);
+            return contact.ContactId;
         }
 
-        public async Task DeleteAsync(int id)
+        public void Delete(int id)
         {
-            var result = _contactDal.GetByIdAsync(id);
-
-            try
+            var result = _contactDal.Get(c => c.ContactId == id);
+            if (result != null)
             {
-                if (result != null)
-                {
-                    await _contactDal.DeleteAsync(id);
-                    await _contactDal.SaveAsync();
-                }
-            }
-            catch
-            {
-                await Console.Out.WriteLineAsync($"Entered Id {id} not found in the list.");
+                _contactDal.Delete(id);
             }
         }
 
-        public async Task<IEnumerable<Contact>> GetAllAsync()
+        public Contact Update(Contact contact)
         {
-            return await _contactDal.GetAllAsync();
+            var updatedEntity = _contactDal.Update(contact);
+            return updatedEntity;
         }
 
-        public async Task<Contact> GetByIdAsync(int id)
+        public IEnumerable<Contact> GetAll()
         {
-            return await _contactDal.GetByIdAsync(id);
+            return _contactDal.GetAll();
         }
 
-        public async Task SaveAsync()
+        public Contact GetById(int id)
         {
-            await _contactDal.SaveAsync();
+            return _contactDal.Get(c => c.ContactId == id);
         }
 
-        public async Task<Contact> UpdateAsync(Contact contact)
-        {
-            await _contactDal.UpdateAsync(contact);
-            await _contactDal.SaveAsync();
-            return contact;
-
-        }
     }
 }

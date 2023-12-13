@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.DataAccess.Abstract;
 using WebAPI.Entities.Concrete;
 using WebAPI.Services.Abstract;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebAPI.Controllers
 {
@@ -21,12 +23,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
             try
             {
-                var result = await _contactService.GetAllAsync();
-
+                var result = _contactService.GetAll();
                 if (result == null)
                 {
                     return NotFound("List is empty.");
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var result = await _contactService.GetByIdAsync(id);
+                var result = _contactService.GetById(id);
 
                 if (result is null)
                 {
@@ -62,41 +63,85 @@ namespace WebAPI.Controllers
             }
         }
 
-
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var result = _contactService.GetById(id);
+                if (result != null)
+                {
+                    _contactService.Delete(id);
+                    return NoContent();
+                }
+                else if (result == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] Contact contact)
+        public IActionResult Create([FromBody] Contact contact)
         {
-            var result = await _contactService.CreateAsync(contact);
-            return CreatedAtAction(nameof(GetById), new { id = result.ContactId }, result);
+            try
+            {
+                int createdContactId = _contactService.Create(contact);
+                if (createdContactId > 0)
+                {
+                    return CreatedAtAction(nameof(GetById), new { id = createdContactId }, contact);
+                }
+                else
+                {
+                    return BadRequest("Contact creation failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+
         }
 
         [HttpPut("update")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] Contact contact)
+        public IActionResult Update([FromBody] Contact contact)
         {
-            if (contact == null)
+            try
             {
-                return BadRequest();
+                if (contact == null)
+                    return NotFound("Contact not found.");
+                else if (!(contact.ContactId == contact.ContactId) || contact.ContactId <= 0)
+                {
+                    return NotFound("Contact Id not found.");
+                }
+                else if (contact != null)
+                {
+                    _contactService.Update(contact);
+                    return Ok("Contact updated.");
+                }
+                else
+                    return BadRequest();
             }
-
-            await _contactService.UpdateAsync(contact);
-            await _contactService.SaveAsync();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _contactService.DeleteAsync(id);
-            await _contactService.SaveAsync();
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
     }
 }

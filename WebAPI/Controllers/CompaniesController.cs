@@ -17,17 +17,15 @@ namespace WebAPI.Controllers
             _companyService = companyService;
         }
 
-
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
             try
             {
-                var result = await _companyService.GetAllAsync();
-
+                var result = _companyService.GetAll();
                 if (result == null)
                 {
                     return NotFound("List is empty.");
@@ -49,7 +47,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var result = await _companyService.GetByIdAsync(id);
+                var result = _companyService.GetById(id);
 
                 if (result is null)
                 {
@@ -63,42 +61,90 @@ namespace WebAPI.Controllers
             }
         }
 
-
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var result = _companyService.GetById(id);
+                if (result != null)
+                {
+                    _companyService.Delete(id);
+                    return NoContent();
+                }
+                else if (result == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] Company company)
+        public IActionResult Create([FromBody] Company company)
         {
-            var result = await _companyService.CreateAsync(company);
-            return CreatedAtAction(nameof(GetById), new { id = result.CompanyId }, result);
-        }
 
+            try
+            {
+                int createdContactId = _companyService.Create(company);
+                if (createdContactId > 0)
+                {
+                    return CreatedAtAction(nameof(GetById), new { id = createdContactId }, company);
+                }
+                else
+                {
+                    return BadRequest("Company creation failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+
+        }
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] Company company)
+        public IActionResult Update([FromBody] Company company)
         {
-            if (company == null)
+            try
             {
-                return BadRequest();
+                if (company == null)
+                    return NotFound("Company not found.");
+                else if (!(company.CompanyId == company.CompanyId) || company.CompanyId <= 0)
+                {
+                    return NotFound("Company Id not found.");
+                }else if((company.CompanyId == company.CompanyId) || (company.CompanyName != company.CompanyName) )
+                {
+                    return NotFound("Company Id didn't match with the Company Name.");
+
+                }
+                else if (company != null)
+                {
+                    _companyService.Update(company);
+                    return Ok();
+                }
+                else
+                    return BadRequest();
             }
-
-            await _companyService.UpdateAsync(company);
-            await _companyService.SaveAsync();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _companyService.DeleteAsync(id);
-            await _companyService.SaveAsync();
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
     }
 }

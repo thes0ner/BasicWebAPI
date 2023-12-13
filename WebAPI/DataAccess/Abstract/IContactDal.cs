@@ -5,8 +5,9 @@ namespace WebAPI.DataAccess.Abstract
 {
     public interface IContactDal : IRepository<Contact>
     {
-        //DTO
-        //GetContactsWithCompanyAndCountry<DTO>();
+       
 
     }
 }
+ //DTO
+        //GetContactsWithCompanyAndCountry<DTO>();

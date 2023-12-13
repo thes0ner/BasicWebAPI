@@ -1,57 +1,60 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using WebAPI.DataAccess.Concrete.context;
+using WebAPI.Entities.Concrete;
 
 namespace WebAPI.Repository
 {
     public class BaseRepository<T> : IRepository<T> where T : class
     {
         private readonly WebApiDbContext _dbContext;
+        //protected virtual DbSet<T> DbSet { get; }
 
         public BaseRepository(WebApiDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<bool> CreateAsync(T entity)
+        public T Get(Expression<Func<T, bool>> filter)
         {
-            await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            return _dbContext.Set<T>().SingleOrDefault(filter);
+
         }
 
-        public async Task<T> UpdateAsync(T entity)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null)
         {
-            _dbContext.Update(entity);
-            await _dbContext.SaveChangesAsync();
-
-            return entity;
+            if (filter == null)
+                return _dbContext.Set<T>().ToList();
+            else
+                return _dbContext.Set<T>().Where(filter).ToList();
         }
 
-        public async Task DeleteAsync(int id)
+        public void Create(T entity)
         {
-            var data = await _dbContext.FindAsync<T>(id);
+            var addedEntity = _dbContext.Add(entity);
+            addedEntity.State = EntityState.Added;
+            _dbContext.SaveChanges();
+        }
 
-            if (data != null)
+        public void Delete(int id)
+        {
+            var entity = _dbContext.Set<T>().Find(id);
+
+            if (entity != null)
             {
-                _dbContext.Remove(data);
-                await _dbContext.SaveChangesAsync();
+                _dbContext.Entry(entity).State = EntityState.Deleted;
+                _dbContext.SaveChanges();
             }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public T Update(T entity)
         {
-            return await _dbContext.Set<T>().ToListAsync();
-        }
+            var updatedEntity = _dbContext.Entry(entity);
+            updatedEntity.State = EntityState.Modified;
+            _dbContext.SaveChanges();
 
-        public async Task<T> GetByIdAsync(int id)
-        {
-            return await _dbContext.FindAsync<T>(id);
-        }
-
-        public async Task SaveAsync()
-        {
-            await _dbContext.SaveChangesAsync();
+            return entity;
         }
     }
 }

@@ -4,12 +4,11 @@ namespace WebAPI.Services.Abstract
 {
     public interface ICompanyService
     {
-        Task<Company> GetByIdAsync(int id);
-        Task<IEnumerable<Company>> GetAllAsync();
-        Task<Company> CreateAsync(Company company);
-        Task<Company> UpdateAsync(Company company);
-        Task DeleteAsync(int id);
-        Task SaveAsync();
+        Company GetById(int id);
+        IEnumerable<Company> GetAll();
+        int Create(Company company);
+        Company Update(Company company);
+        void Delete(int id);
 
     }
 }

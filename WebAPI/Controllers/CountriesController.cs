@@ -21,12 +21,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
             try
             {
-                var result = await _countryService.GetAllAsync();
-
+                var result = _countryService.GetAll();
                 if (result == null)
                 {
                     return NotFound("List is empty.");
@@ -48,7 +47,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var result = await _countryService.GetByIdAsync(id);
+                var result = _countryService.GetById(id);
 
                 if (result is null)
                 {
@@ -62,41 +61,85 @@ namespace WebAPI.Controllers
             }
         }
 
-
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var result = _countryService.GetById(id);
+                if (result != null)
+                {
+                    _countryService.Delete(id);
+                    return NoContent();
+                }
+                else if (result == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] Country country)
+        public IActionResult Create([FromBody] Country country)
         {
-            var result = await _countryService.CreateAsync(country);
-            return CreatedAtAction(nameof(GetById), new { id = result.CountryId }, result);
+            try
+            {
+                int createdContactId = _countryService.Create(country);
+                if (createdContactId > 0)
+                {
+                    return CreatedAtAction(nameof(GetById), new { id = createdContactId }, country);
+                }
+                else
+                {
+                    return BadRequest("Contact creation failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+
         }
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] Country country)
+        public IActionResult Update([FromBody] Country country)
         {
-            if (country == null)
+            try
             {
-                return BadRequest();
+                if (country == null)
+                    return NotFound("Contact not found.");
+                else if (country.CountryId == country.CountryId)
+                {
+                    return NotFound("Contact Id not found.");
+                }
+                else if (country != null)
+                {
+                    _countryService.Update(country);
+                    return Ok();
+                }
+                else
+                    return BadRequest();
             }
-
-            await _countryService.UpdateAsync(country);
-            await _countryService.SaveAsync();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _countryService.DeleteAsync(id);
-            await _countryService.SaveAsync();
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
     }
 }
