@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.DataAccess.Abstract;
+using WebAPI.DataAccess.Concrete;
 using WebAPI.Entities.Concrete;
+using WebAPI.Entities.DTO_s;
 using WebAPI.Services.Abstract;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -16,6 +18,55 @@ namespace WebAPI.Controllers
         public ContactsController(IContactService contactService)
         {
             _contactService = contactService;
+        }
+
+        [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetContactsWithCompanyAndCountryName()
+        {
+            try
+            {
+                var result = _contactService.GetContactsWithCompanyAndCountry();
+                if (result == null)
+                {
+                    return NotFound("List is empty.");
+                }
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+
+        }
+
+        [HttpGet("getbyfilter/{companyId}/{countryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult FilterContact(int companyId, int countryId)
+        {
+            try
+            {
+                var result = _contactService.FilterContact(companyId, countryId);
+
+                if (result != null && result.Any())
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+
         }
 
 

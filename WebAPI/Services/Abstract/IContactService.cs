@@ -1,4 +1,5 @@
 ﻿using WebAPI.Entities.Concrete;
+using WebAPI.Entities.DTO_s;
 
 namespace WebAPI.Services.Abstract
 {
@@ -10,7 +11,7 @@ namespace WebAPI.Services.Abstract
         Contact Update(Contact contact);
         void Delete(int id);
 
-        //Task<IEnumerable<Contact>> FilterContactsAsync(int? countryId, int? companyId);
-        //GetContactsWithCompanyAndCountry();
+        List<ContactDTO> GetContactsWithCompanyAndCountry();
+        List<ContactDTO> FilterContact(int companyId, int countryId);
     }
 }

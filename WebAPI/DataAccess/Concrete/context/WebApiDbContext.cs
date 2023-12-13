@@ -5,6 +5,8 @@ namespace WebAPI.DataAccess.Concrete.context
 {
     public class WebApiDbContext : DbContext
     {
+
+
         public WebApiDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -12,6 +14,11 @@ namespace WebAPI.DataAccess.Concrete.context
         public WebApiDbContext()
         {
         }
+
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Country> Countries { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(Configuration.ConnectionString);
@@ -19,6 +26,10 @@ namespace WebAPI.DataAccess.Concrete.context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Contact>().ToTable("Contacts");
+            modelBuilder.Entity<Company>().ToTable("Companies");
+            modelBuilder.Entity<Country>().ToTable("Countries");
+
             modelBuilder.Entity<Company>().HasKey(c => c.CompanyId);
             modelBuilder.Entity<Contact>().HasKey(c => c.ContactId);
             modelBuilder.Entity<Country>().HasKey(c => c.CountryId);

@@ -1,14 +1,11 @@
-﻿using WebAPI.DataAccess.Abstract;
+﻿using WebAPI.Core.Repository;
+using WebAPI.DataAccess.Abstract;
 using WebAPI.DataAccess.Concrete.context;
 using WebAPI.Entities.Concrete;
-using WebAPI.Repository;
 
 namespace WebAPI.DataAccess.Concrete
 {
-    public class EfCompanyDal : BaseRepository<Company>, ICompanyDal
+    public class EfCompanyDal : BaseRepository<Company,WebApiDbContext>, ICompanyDal
     {
-        public EfCompanyDal(WebApiDbContext dbContext) : base(dbContext)
-        {
-        }
     }
 }

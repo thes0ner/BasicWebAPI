@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
+using WebAPI.Core.Entities;
 
-namespace WebAPI.Repository
+namespace WebAPI.Core.Repository
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : class, IEntity
     {
         T Get(Expression<Func<T, bool>> filter);
         IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebAPI.DataAccess.Abstract;
 using WebAPI.Entities.Concrete;
+using WebAPI.Entities.DTO_s;
 using WebAPI.Services.Abstract;
 
 namespace WebAPI.Services.Concrete
@@ -45,5 +46,14 @@ namespace WebAPI.Services.Concrete
             return _contactDal.Get(c => c.ContactId == id);
         }
 
+        public List<ContactDTO> GetContactsWithCompanyAndCountry()
+        {
+            return new List<ContactDTO>(_contactDal.GetContactsWithCompanyAndCountry());
+        }
+
+        public List<ContactDTO> FilterContact(int companyId, int countryId)
+        {
+            return new List<ContactDTO>(_contactDal.FilterContact(companyId, countryId));
+        }
     }
 }

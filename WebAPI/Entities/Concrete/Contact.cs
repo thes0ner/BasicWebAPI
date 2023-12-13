@@ -1,6 +1,8 @@
-﻿namespace WebAPI.Entities.Concrete
+﻿using WebAPI.Core.Entities;
+
+namespace WebAPI.Entities.Concrete
 {
-    public class Contact
+    public class Contact : IEntity
     {
         public int ContactId { get; set; }
         public string ContactName { get; set; }

@@ -1,5 +1,5 @@
-﻿using WebAPI.Entities.Concrete;
-using WebAPI.Repository;
+﻿using WebAPI.Core.Repository;
+using WebAPI.Entities.Concrete;
 
 namespace WebAPI.DataAccess.Abstract
 {

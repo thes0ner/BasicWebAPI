@@ -1,6 +1,8 @@
-﻿namespace WebAPI.Entities.Concrete
+﻿using WebAPI.Core.Entities;
+
+namespace WebAPI.Entities.Concrete
 {
-    public class Country
+    public class Country : IEntity
     {
         public int CountryId { get; set; }
         public string CountryName { get; set; }
